@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<thead>
+    <tr>
+        <th>Nama</th>
+        <th>Domisili</th>
+        <th>Tempat Lahir</th>
+        <th>Tanggal Lahir</th>
+        <th>Alamat</th>
+        <th>Jenis Kelamin</th>
+        <th>Email</th>
+        <th>Nomor Telepon</th>
+        <th></th>
+    </tr>
+</thead>
+
+<tbody id="tbody"></tbody>
+<script>
+  $(document).ready(function() {
+    for (let i = 0; i < daftar_mahasiswa.length; i++) {
+      $("#tbody").append(
+        "<tr id='tr-"+ daftar_mahasiswa[i].id + "'>" +
+        "<td>" + daftar_mahasiswa[i].nama + "</td>" +
+        "<td>" +  daftar_mahasiswa[i].domisili + "</td>" +
+        "<td>" + daftar_mahasiswa[i].tempat_lahir + "</td>" + 
+        "<td>" + daftar_mahasiswa[i].tanggal_lahir + "</td>" +
+        "<td>" + daftar_mahasiswa[i].alamat + "</td>" +
+        "<td>" +  daftar_mahasiswa[i].jenis_kelamin + "</td>" +
+        "<td>" + daftar_mahasiswa[i].email + "</td>" + 
+        "<td>" + daftar_mahasiswa[i].no_tlp + "</td>" +
+        "<td><i class='fa-solid fa-eye'></i>" + 
+        "<i class='fa-solid fa-pencil' id='edit-id-" + daftar_mahasiswa[i].id + "'></i>" +
+        "<i class='fa-solid fa-trash' id='delete-id-" + daftar_mahasiswa[i].id + "'></i></td></tr>"
+      );
+
+      $("#delete-id-" + daftar_mahasiswa[i].id).click(function() {
+        $("#tr-" + daftar_mahasiswa[i].id).remove();
+      });
+
+      $("#edit-id-" + daftar_mahasiswa[i].id).click(function() {
+        $('#nama').val(daftar_mahasiswa[i].nama);
+        $('#domisili').val(daftar_mahasiswa[i].domisili);
+        $('#tempat_lahir').val(daftar_mahasiswa[i].tempat_lahir);
+        $('#tanggal_lahir').val(daftar_mahasiswa[i].tanggal_lahir);
+        $('#alamat').val(daftar_mahasiswa[i].alamat);
+        $('#jenis_kelamin').val(daftar_mahasiswa[i].jenis_kelamin);
+        $('#email').val(daftar_mahasiswa[i].email);
+        $('#no_tlp').val(daftar_mahasiswa[i].no_tlp);
+        $('#id_mahasiswa').val(daftar_mahasiswa[i].id);
+        $('#formulir-pendaftaran').show();
+        $('#table-container').hide();
+      });
+      }
+    });
+</script>
+<script>
+  $(document).ready(function() {
+    $.ajax({ 
+      type: "GET",
+      url: "pengambilan_data.php",
+      success:function(response) {
+        const res = JSON.parse(response);
+        const daftar_mahasiswa = res.data;
+        for (let i = 0; i < daftar_mahasiswa.length; i++) {
+          $("#tbody").append(
+            "<tr id='tr-"+ daftar_mahasiswa[i].id + "'>" +
+            "<td>" + daftar_mahasiswa[i].nama + "</td>" +
+            "<td>" +  daftar_mahasiswa[i].domisili + "</td>" +
+            "<td>" + daftar_mahasiswa[i].tempat_lahir + "</td>" + 
+            "<td>" + daftar_mahasiswa[i].tanggal_lahir + "</td>" +
+            "<td>" + daftar_mahasiswa[i].alamat + "</td>" +
+            "<td>" +  daftar_mahasiswa[i].jenis_kelamin + "</td>" +
+            "<td>" + daftar_mahasiswa[i].email + "</td>" + 
+            "<td>" + daftar_mahasiswa[i].no_tlp + "</td>" +
+            "<td><i class='fa-solid fa-eye'></i>" + 
+            "<i class='fa-solid fa-pencil' id='edit-id-" + daftar_mahasiswa[i].id + "'></i>" +
+            "<i class='fa-solid fa-trash' id='delete-id-" + daftar_mahasiswa[i].id + "'></i></td></tr>"
+          );
+          $("#delete-id-" + daftar_mahasiswa[i].id).click(function() {
+          var id = daftar_mahasiswa[i].id; // Ambil id data yang akan dihapus
+          $.ajax({
+            url: 'hapus_data.php',
+            method: 'POST',
+            data: {
+            id: id // Kirim id data yang akan dihapus
+            },
+            success: function(response) {
+              // Jika penghapusan berhasil, hapus baris dari tabel secara langsung
+              $("#tr-" + id).remove();
+              $('#dataTable').load('dataTable.html');
+            },
+              error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+              }
+            });
+          });
+
+          $("#edit-id-" + daftar_mahasiswa[i].id).click(function() {
+            $('#formulir-pendaftaran').show();
+            $('#table-container').hide();
+
+            var id = daftar_mahasiswa[i].id; // Ambil id data yang akan dihapus
+            var nama = $('#nama').val();
+            var domisili = $('#domisili').val();
+            var tempat_lahir = $('#tempat_lahir').val();
+            var tanggal_lahir = $('#tanggal_lahir').val();
+            var alamat = $('#alamat').val(); 
+            var jenis_kelamin = $('input[name="jenis_kelamin"]:checked').val();
+            var email = $('#email').val();
+            var no_tlp = $('#no_tlp').val();
+          
+            $.ajax({
+              url: 'perubahan_data.php',
+              method: 'POST',
+              data: {
+                id,
+                nama,
+                domisili,
+                tempat_lahir,
+                tanggal_lahir,
+                alamat,
+                jenis_kelamin,
+                email,
+                no_tlp,
+              },
+              success: function(response) {
+                $('#dataTable').load('dataTable.html');
+                location.reload();
+              },
+              error: function(xhr, status, error) {
+                console.error(xhr.responseText); // Tampilkan pesan error jika terjadi kesalahan
+              }
+            });
+          });
+          }
+        }
+      });
+  });
+</script>
